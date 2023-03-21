@@ -10,7 +10,7 @@ import CoreLocation
 import Combine
 
 protocol LocationManagerProtocol {
-    var locationSubject: PassthroughSubject<CLLocation, Never> { get }
+    var locationPublisher: AnyPublisher<CLLocation, Never> { get }
     func requestLocationOnce()
 }
 
@@ -18,7 +18,7 @@ final class LocationManager: NSObject {
     
     // MARK: - Private properties
     
-    private lazy var internalLocationSubject = PassthroughSubject<CLLocation, Never>()
+    private lazy var locationSubject = PassthroughSubject<CLLocation, Never>()
     private lazy var locationManager: CLLocationManager = {
         let manager = CLLocationManager()
         manager.delegate = self
@@ -29,8 +29,9 @@ final class LocationManager: NSObject {
 // MARK: - LocationManagerProtocol
 
 extension LocationManager: LocationManagerProtocol {
-    var locationSubject: PassthroughSubject<CLLocation, Never> {
-        internalLocationSubject
+
+    var locationPublisher: AnyPublisher<CLLocation, Never> {
+        locationSubject.eraseToAnyPublisher()
     }
     
     func requestLocationOnce() {
@@ -38,12 +39,7 @@ extension LocationManager: LocationManagerProtocol {
             locationSubject.send(savedLocation)
         }
         
-        let status: CLAuthorizationStatus
-        if #available(iOS 14.0, *) {
-            status = locationManager.authorizationStatus
-        } else {
-            status = CLLocationManager.authorizationStatus()
-        }
+        let status = locationManager.authorizationStatus
         let isGranted = status == .authorizedAlways || status == .authorizedWhenInUse
         if isGranted {
             locationManager.requestLocation()

@@ -17,13 +17,13 @@ struct DayHourlyChartView: View {
             HStack {
                 Image(systemName: "chart.xyaxis.line")
                 Text("DAY WEATHER CHART")
+                    .font(.caption)
             }
-            .font(.caption)
             
             Chart {
                 ForEach(hourWeathers, id: \.date) { hourForecast in
                     LineMark(x: .value("Hour", hourForecast.date.formatted(with: "h a")),
-                             y: .value("Temperature", hourForecast.temperature.converted(to: .fahrenheit).value))
+                             y: .value("Temperature", hourForecast.temperature.value))
                 }
             }
         }

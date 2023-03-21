@@ -10,6 +10,7 @@ import WeatherKit
 
 struct DailyForecastView: View {
     @State var weather: Weather
+    @State var viewModel: HomeViewModel
     @State private var selectedDayWeather: DayWeather?
 
     var body: some View {
@@ -17,18 +18,18 @@ struct DailyForecastView: View {
             HStack {
                 Image(systemName: "calendar")
                 Text("10 - DAY FORECAST")
+                    .font(.caption)
                 Spacer()
             }
-            .font(.caption)
             Divider()
             
             ForEach(weather.dailyForecast, id: \.date) { dailyForecast in
                 Button(action: {
-                    self.selectedDayWeather = dailyForecast
+                    selectedDayWeather = dailyForecast
                 }, label: {
                     HStack {
                         Text(dailyForecast.date.weekDay)
-                            .frame(width: 50 , alignment: .leading)
+                            .frame(width: 50, alignment: .leading)
                         Spacer()
                         
                         Image(systemName: "\(dailyForecast.symbolName).fill")
@@ -38,7 +39,10 @@ struct DailyForecastView: View {
                         Text("\(dailyForecast.lowTemperature.value.rounded())°")
                         TemperatureBarView(currentTemp: weather.currentWeather.temperature.value,
                                            minTemp: dailyForecast.lowTemperature.value,
-                                           maxTemp: dailyForecast.highTemperature.value)
+                                           maxTemp: dailyForecast.highTemperature.value,
+                                           weatherMinTemp: viewModel.weatherMinTemp,
+                                           weatherMaxTemp: viewModel.weatherMaxTemp,
+                                           isToday: dailyForecast.date.isInToday)
                             .frame(width: 100, height: 8)
                         Text("\(dailyForecast.highTemperature.value.rounded())°")
                     }

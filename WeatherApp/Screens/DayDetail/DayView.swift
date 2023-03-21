@@ -12,17 +12,25 @@ struct DayView: View {
     
     var body: some View {
         VStack {
-            ScrollView {
-                VStack {
-                    Spacer(minLength: 110)
-                    DayHeaderView(dayWeather: viewModel.dayWeather)
-                    
-                    Spacer(minLength: 50)
-                    DayHourlyChartView(hourWeathers: viewModel.chartHourWeathers)
-                    
-                    DayHourlyForecastView(hourWeathers: viewModel.hourWeathers)
-                    Spacer(minLength: 30)
+            if !viewModel.loading {
+                ScrollView {
+                    VStack {
+                        Spacer(minLength: 110)
+                        DayHeaderView(dayWeather: viewModel.dayWeather)
+                        
+                        Spacer(minLength: 50)
+                        DayHourlyChartView(hourWeathers: viewModel.chartHourWeathers)
+                        
+                        DayHourlyForecastView(hourWeathers: viewModel.hourWeathers)
+                        Spacer(minLength: 30)
+                    }
                 }
+            } else {
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .frame(width: 40)
+                Spacer()
             }
         }
         .frame(maxWidth: .infinity)

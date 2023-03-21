@@ -11,29 +11,14 @@ struct TemperatureBarView: View {
     @State var currentTemp: Double
     @State var minTemp: Double
     @State var maxTemp: Double
-    
-    private let minValue: CGFloat
-    private let maxValue: CGFloat
+    @State var weatherMinTemp: Double?
+    @State var weatherMaxTemp: Double?
+    @State var isToday: Bool
+
     private let gradient = LinearGradient(colors: [
         Color(.blue).opacity(0.3),
         Color(.yellow),
     ], startPoint: .leading, endPoint: .trailing)
-    
-    init(currentTemp: Double, minTemp: Double, maxTemp: Double) {
-        self.currentTemp = currentTemp
-        self.minTemp = minTemp
-        self.maxTemp = maxTemp
-        self.minValue = abs(minTemp) * 1.5
-        self.maxValue = abs(maxTemp) * 1.5
-    }
-    
-    private func countWidth(in geometry: GeometryProxy) -> CGFloat {
-        return ((abs(minTemp) + abs(maxTemp)) / (abs(minValue) + abs(maxValue))) * geometry.size.width
-    }
-    
-    private func countOffset(in geometry: GeometryProxy) -> CGFloat {
-        return (abs(minValue) - abs(minTemp)) / (abs(minValue) + abs(maxValue)) * geometry.size.width
-    }
     
     var body: some View {
         ZStack {
@@ -47,17 +32,71 @@ struct TemperatureBarView: View {
                         RoundedRectangle(cornerRadius: 35)
                             .padding(1)
                             .shadow(radius: 10)
-                            .frame(width: countWidth(in: geometry))
-                            .offset(x: countOffset(in: geometry))
+                            .frame(width: calculateTempWidth(in: geometry))
+                            .offset(x: calculateOffset(in: geometry))
                     }
                 }
+            
+            if isToday{
+                GeometryReader { geometry in
+                    Circle()
+                        .fill(.white)
+                        .padding(2)
+                        .shadow(radius: 1)
+                        .offset(x:  calculateDotOffset(in: geometry))
+                }
+            }
         }
     }
 }
 
+// MARK: - Views properties calculation
+
+extension TemperatureBarView {
+    private func calculateTempWidth(in geometry: GeometryProxy) -> CGFloat {
+        let weatherRangeWidth = (weatherMaxTemp ?? maxTemp) - (weatherMinTemp ?? minTemp)
+        let tempRangeWidth = maxTemp - minTemp
+        let geometryWidth = geometry.size.width
+        if weatherRangeWidth == 0 {
+            return 0
+        }
+        return tempRangeWidth / weatherRangeWidth * geometryWidth
+    }
+    
+    private func calculateOffset(in geometry: GeometryProxy) -> CGFloat {
+        let weatherRangeWidth = (weatherMaxTemp ?? maxTemp) - (weatherMinTemp ?? minTemp)
+        let geometryWidth = geometry.size.width
+        let minTempOffset = minTemp - (weatherMinTemp ?? minTemp)
+        
+        if weatherRangeWidth == 0 {
+            return 0
+        }
+        
+        return minTempOffset / weatherRangeWidth * geometryWidth
+    }
+    
+    private func calculateDotOffset(in geometry: GeometryProxy) -> CGFloat {
+        let weatherRangeWidth = (weatherMaxTemp ?? maxTemp) - (weatherMinTemp ?? minTemp)
+        let geometryWidth = geometry.size.width
+        let currentTempOffset = currentTemp - (weatherMinTemp ?? minTemp)
+        
+        if weatherRangeWidth == 0 {
+            return 0
+        }
+        
+        return currentTempOffset / weatherRangeWidth * geometryWidth
+    }
+}
+
+
 struct TemperatureBarView_Previews: PreviewProvider {
     static var previews: some View {
-        TemperatureBarView(currentTemp: 5, minTemp: 5, maxTemp: 8)
+        TemperatureBarView(currentTemp: 5,
+                           minTemp: 5,
+                           maxTemp: 8,
+                           weatherMinTemp: 0,
+                           weatherMaxTemp: 10,
+                           isToday: true)
             .frame(height: 20)
             .frame(width: 200)
     }

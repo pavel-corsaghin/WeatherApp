@@ -22,18 +22,16 @@ struct HomeView: View {
                         Spacer(minLength: 50)
                         HourlyForecastView(next24HourWeathers: viewModel.next24HourWeathers)
                         
-                        DailyForecastView(weather: weather)
+                        DailyForecastView(weather: weather, viewModel: viewModel)
                         Spacer(minLength: 30)
                     }
                 }
             } else {
-                VStack {
-                    Spacer()
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .frame(width: 40)
-                    Spacer()
-                }
+                Spacer()
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .frame(width: 40)
+                Spacer()
             }
         }
         .frame(maxWidth: .infinity)

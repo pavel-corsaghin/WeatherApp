@@ -15,7 +15,8 @@ final class DayViewModel: ObservableObject {
     @Published var dayWeather: DayWeather
     @Published var hourWeathers: [HourWeather] = []
     @Published var chartHourWeathers: [HourWeather] = []
-    
+    @Published var loading: Bool = false
+
     init(weather: Weather, dayWeather: DayWeather) {
         self.weather = weather
         self.dayWeather = dayWeather
@@ -24,10 +25,19 @@ final class DayViewModel: ObservableObject {
     }
     
     private func generateHourWeathers() {
-        let startOfDay = dayWeather.date.startOfDay
-        let endOfDay = dayWeather.date.endOfDay
-        hourWeathers = Array(weather.hourlyForecast
-            .filter { $0.date >= startOfDay && $0.date < endOfDay })
-        chartHourWeathers = hourWeathers.filter { $0.date.hour % 4 == 0 }
+        loading = true
+        Task.detached(priority: .userInitiated) {
+            let startOfDay = self.dayWeather.date.startOfDay
+            let endOfDay = self.dayWeather.date.endOfDay
+            let hourWeathers = Array(self.weather.hourlyForecast
+                .filter { $0.date >= startOfDay && $0.date < endOfDay })
+            let chartHourWeathers = hourWeathers.filter { $0.date.hour % 4 == 0 }
+            
+            DispatchQueue.main.async {
+                self.hourWeathers = hourWeathers
+                self.chartHourWeathers = chartHourWeathers
+                self.loading = false
+            }
+        }
     }
 }

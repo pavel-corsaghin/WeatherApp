@@ -16,8 +16,8 @@ struct HourlyForecastView: View {
             HStack {
                 Image(systemName: "clock")
                 Text("HOURLY FORECAST")
+                    .font(.caption)
             }
-            .font(.caption)
             Divider()
             
             ScrollView(.horizontal) {

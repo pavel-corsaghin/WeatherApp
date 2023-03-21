@@ -16,13 +16,14 @@ struct DayHourlyForecastView: View {
             HStack {
                 Image(systemName: "clock")
                 Text("24 - HOUR FORECAST")
+                    .font(.caption)
             }
-            .font(.caption)
             Divider()
             
             ForEach(hourWeathers, id: \.date) { hourForecast in
                 HStack {
                     Text(hourForecast.date.formatted(with: "h a"))
+                        .frame(width: 60)
                     Spacer()
                     Text("\(hourForecast.temperature.value.rounded())°")
                         .frame(width: 40)
